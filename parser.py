@@ -1,5 +1,6 @@
 import os
 import sys 
+import datetime
 import requests
 import mysql.connector
 
@@ -66,10 +67,10 @@ def increment_months(year, month):
 
 ### Main Method
 def main():
+    curr = datetime.datetime.today().strftime("%Y%m")
     stocks_range = "5d"
-    curr = "202005"
     options_range = 12
-    
+
     # UPSTREAM
     mydb = mysql.connector.connect(
         host = host,
@@ -92,6 +93,9 @@ def main():
                 parse_options(mydb, mycursor, item)
         except:
             pass
+
+    # temp3 = technical_indicators(env, token, "AAPL", "sma", "6m")
+    # print(temp3['indicator'])
 
     # DOWNSTREAM
     mycursor.close()
