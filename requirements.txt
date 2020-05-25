@@ -1,8 +1,7 @@
 pandas
 numpy
 pickle5
-sqlalchemy
-nltk
+mysql-connector-python
 scikit-learn
 plotly
 flask
