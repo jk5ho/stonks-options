@@ -17,6 +17,13 @@ password="rood"
 database="project_stonk"
 
 ### API Calls
+def stock_symbols(env_type, api_token):
+    '''Returns stock symbols'''
+    response = requests.get("https://" + env_type + ".iexapis.com/stable/ref-data/iex/symbols?token=" + api_token)
+    if(response.status_code != 200):
+        raise Exception("BAD STOCKS RESPONSE: ", response.status_code)
+    return response.json()
+
 def stocks_prices(env_type, api_token, symbol, ts_range):
     '''Returns stock pricing in time-series range'''
     response = requests.get("https://" + env_type + ".iexapis.com/stable/stock/" + symbol + "/chart/" + ts_range + "?token=" + api_token)
@@ -80,19 +87,28 @@ def main():
     )
     mycursor = mydb.cursor()
 
+    if sys.argv[1] == "max":
+        list_symbols = stock_symbols(env, token)
+        for symbol in list_symbols:
+            list_price = stocks_prices(env, token, symbol['symbol'], "max")
+            for price in list_price:
+                parse_stocks(mydb, mycursor, symbol['symbol'], price)
+    elif sys.argv[1] == "week":
+        print("test")
+
     # Parsing Data to DB
-    temp1 = stocks_prices(env, token, "AAPL", stocks_range)
-    for item in temp1:
-       parse_stocks(mydb, mycursor, "AAPL", item)
+    # temp1 = stocks_prices(env, token, "AAPL", stocks_range)
+    # for item in temp1:
+    #    parse_stocks(mydb, mycursor, "AAPL", item)
     
-    for i in range(0,options_range):
-        try:
-            curr = increment_months(int(curr[0:4]), int(curr[4:6]))
-            temp2 = option_prices(env, token, "AAPL", curr)
-            for item in temp2:
-                parse_options(mydb, mycursor, item)
-        except:
-            pass
+    # for i in range(0,options_range):
+    #     try:
+    #         curr = increment_months(int(curr[0:4]), int(curr[4:6]))
+    #         temp2 = option_prices(env, token, "AAPL", curr)
+    #         for item in temp2:
+    #             parse_options(mydb, mycursor, item)
+    #     except:
+    #         pass
 
     # temp3 = technical_indicators(env, token, "AAPL", "sma", "6m")
     # print(temp3['indicator'])
