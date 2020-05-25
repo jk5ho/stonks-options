@@ -45,7 +45,7 @@ def technical_indicators(env_type, api_token, symbol, indicator, range):
 ### Database Calls
 def parse_stocks(mydb, mycursor, symbol, entry):   
     '''Parses stock pricing data into MySQL database'''
-    query = """INSERT INTO Stocks (symbol, date, high, low, open, close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s) """
+    query = """INSERT IGNORE INTO Stocks (symbol, date, high, low, open, close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s) """
     mycursor.executemany(query, entry)
     mydb.commit()
 
