@@ -4,17 +4,13 @@ import datetime
 import requests
 import mysql.connector
 
+from dbconfig import mysql
+
 # IEX API
 env = 'sandbox'
 token = 'Tpk_d7aa551ec78a42ef9b7933450b0d29dc' 
 # env = 'cloud'
 # token = 'pk_8f217a39af964a708a5981d1f9cfa931'
-
-# MySQL Database
-host="localhost"
-user="hobin"
-password="rood"
-database="project_stonk"
 
 ### API Calls
 def stock_symbols(env_type, api_token):
@@ -80,35 +76,32 @@ def main():
 
     # UPSTREAM
     mydb = mysql.connector.connect(
-        host = host,
-        user = user,
-        passwd = password,
-        database = database
+        host = mysql["host"],
+        user = mysql["user"],
+        passwd = mysql["password"],
+        database = mysql["database"]
     )
     mycursor = mydb.cursor()
 
-    if sys.argv[1] == "max":
-        list_symbols = stock_symbols(env, token)
-        for symbol in list_symbols:
-            list_price = stocks_prices(env, token, symbol['symbol'], "max")
-            for price in list_price:
-                parse_stocks(mydb, mycursor, symbol['symbol'], price)
-    elif sys.argv[1] == "week":
-        print("test")
+    # Parsing API data to DB
+    if sys.argv[1] == "max": stocks_range = "max"
+    list_symbols = stock_symbols(env, token)
+    for symbol in list_symbols:
 
-    # Parsing Data to DB
-    # temp1 = stocks_prices(env, token, "AAPL", stocks_range)
-    # for item in temp1:
-    #    parse_stocks(mydb, mycursor, "AAPL", item)
-    
-    # for i in range(0,options_range):
-    #     try:
-    #         curr = increment_months(int(curr[0:4]), int(curr[4:6]))
-    #         temp2 = option_prices(env, token, "AAPL", curr)
-    #         for item in temp2:
-    #             parse_options(mydb, mycursor, item)
-    #     except:
-    #         pass
+        # Stock prices
+        list_price = stocks_prices(env, token, symbol['symbol'], stocks_range)
+        for price in list_price:
+            parse_stocks(mydb, mycursor, symbol['symbol'], price)
+
+        # Options data
+        for i in range(0,options_range):
+            try:
+                curr = increment_months(int(curr[0:4]), int(curr[4:6]))
+                temp2 = option_prices(env, token, symbol['symbol'], curr)
+                for item in temp2:
+                    parse_options(mydb, mycursor, item)
+            except:
+                pass
 
     # temp3 = technical_indicators(env, token, "AAPL", "sma", "6m")
     # print(temp3['indicator'])

@@ -8,11 +8,11 @@ Given a list of high conviction equity investments, our model recommends suitabl
 
 ## Pre-requisite
 1) MySQL Connection
-```python
-host = "localhost"
-user = "hobin"
-password = "rood"
-database = "project_stonk"
+Execute the following SQL scripts:
+```
+user.sql
+tables.sql
+procedures.sql
 ```
 
 2) IEX API Connection
@@ -25,25 +25,21 @@ env = 'cloud'
 token = 'pk_8f217a39af964a708a5981d1f9cfa931'
 ```
 
-3) Python - MySQL
+3) Environment Setup
 ```bash
-pip3 install -r requirements.txt
+chmod 755 setup.sh
+./setup.sh
 ```
 
 ## Data Parser Usage
 Populate database with all stock historical data:
 ```bash
-python3 parser.py all
+python3 parser.py max
 ```
 
-Update last week's stock prices (scheduled cron job):
+Update last week's stock prices & next 12 month's option data (scheduled cron job):
 ```bash
-python3 parser.py stock
-```
-
-Update next 12 month's option data (scheduled cron job):
-```bash
-python3 parser.py option
+python3 parser.py
 ```
 
 ## Data Analyzer Usage
