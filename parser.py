@@ -4,7 +4,7 @@ import datetime
 import requests
 import mysql.connector
 
-from dbconfig import mysql
+from dbconfig import db_config
 
 # IEX API
 env = 'sandbox'
@@ -45,9 +45,8 @@ def technical_indicators(env_type, api_token, symbol, indicator, range):
 ### Database Calls
 def parse_stocks(mydb, mycursor, symbol, entry):   
     '''Parses stock pricing data into MySQL database'''
-    # symbol, date, high, low, open, close, volume
-    parameters = [symbol, entry['date'], entry['high'], entry['low'], entry['open'], entry['close'], entry['volume']]
-    mycursor.callproc("parseStocks", parameters)
+    query = """INSERT INTO Stocks (symbol, date, high, low, open, close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s) """
+    mycursor.executemany(query, entry)
     mydb.commit()
 
 def parse_options(mydb, mycursor, entry):
@@ -76,10 +75,10 @@ def main():
 
     # UPSTREAM
     mydb = mysql.connector.connect(
-        host = mysql["host"],
-        user = mysql["user"],
-        passwd = mysql["password"],
-        database = mysql["database"]
+        host = db_config["host"],
+        user = db_config["user"],
+        passwd = db_config["password"],
+        database = db_config["database"]
     )
     mycursor = mydb.cursor()
 
@@ -90,18 +89,23 @@ def main():
 
         # Stock prices
         list_price = stocks_prices(env, token, symbol['symbol'], stocks_range)
+        insert_price = []
         for price in list_price:
-            parse_stocks(mydb, mycursor, symbol['symbol'], price)
+            insert_records = (symbol['symbol'], price['date'], price['high'], price['low'], price['open'], price['close'], price['volume'])
+            insert_price.append(insert_records)
+        parse_stocks(mydb, mycursor, symbol['symbol'], insert_price)
 
-        # Options data
-        for i in range(0,options_range):
-            try:
-                curr = increment_months(int(curr[0:4]), int(curr[4:6]))
-                temp2 = option_prices(env, token, symbol['symbol'], curr)
-                for item in temp2:
-                    parse_options(mydb, mycursor, item)
-            except:
-                pass
+        # TODO: Options data
+        # mycursor.callproc("cleanOptions")
+        # mydb.commit()
+        # for i in range(0,options_range):
+        #     try:
+        #         curr = increment_months(int(curr[0:4]), int(curr[4:6]))
+        #         temp2 = option_prices(env, token, symbol['symbol'], curr)
+        #         for item in temp2:
+        #             parse_options(mydb, mycursor, item)
+        #     except:
+        #         pass
 
     # temp3 = technical_indicators(env, token, "AAPL", "sma", "6m")
     # print(temp3['indicator'])

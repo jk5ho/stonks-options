@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-mysql = {
+db_config = {
     "host":"localhost",
     "user":"hobin",
     "password":"rood",
