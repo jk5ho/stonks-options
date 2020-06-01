@@ -3,10 +3,12 @@
 echo --- Setting up Prerequisites
 export FLASK_APP=dashboard.py
 
-apt-get update
-apt-get install mysql-server # Install MySQL
-apt-get install python3 # Install Python3
-apt-get install python3-pip # Install Pip3
+sudo apt-get update
+sudo apt-get install mysql-server # Install MySQL
+sudo apt-get install python3 # Install Python3
+sudo apt-get install python3-pip # Install Pip3
+
+sudo service mysql start
 
 pip3 install -r requirements.txt
 

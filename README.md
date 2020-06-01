@@ -32,6 +32,11 @@ chmod 755 setup.sh
 ```
 
 ## Data Parser Usage
+Start the MySQL server
+```
+sudo service mysql start
+```
+
 Populate database with all stock historical data:
 ```bash
 python3 parser.py max
