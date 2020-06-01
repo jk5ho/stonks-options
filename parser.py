@@ -15,10 +15,11 @@ token = 'Tpk_d7aa551ec78a42ef9b7933450b0d29dc'
 ### API Calls
 def stock_symbols(env_type, api_token):
     '''Returns stock symbols'''
-    response = requests.get("https://" + env_type + ".iexapis.com/stable/ref-data/iex/symbols?token=" + api_token)
-    if(response.status_code != 200):
-        raise Exception("BAD STOCKS RESPONSE: ", response.status_code)
-    return response.json()
+    # response = requests.get("https://" + env_type + ".iexapis.com/stable/ref-data/iex/symbols?token=" + api_token)
+    # if(response.status_code != 200):
+    #     raise Exception("BAD STOCKS RESPONSE: ", response.status_code)
+    # return response.json()
+    return [{"symbol": "AAPL"}]
 
 def stocks_prices(env_type, api_token, symbol, ts_range):
     '''Returns stock pricing in time-series range'''
