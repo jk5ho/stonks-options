@@ -55,8 +55,16 @@ def parse_options(mydb, mycursor, entry):
     # id, symbol, expiry, contractSize, strikePrice, closingPrice, side, type, volume, openInterest, bid, ask, lastUpdated, isAdjusted
     expiry = entry['expirationDate'][0:4]+"-"+entry['expirationDate'][4:6]+"-"+entry['expirationDate'][6:8]
     side = "put" #TODO
-    parameters = [entry['id'], entry['symbol'], expiry, entry['contractSize'], entry['strikePrice'], entry['closingPrice'], side, entry['type'], entry['volume'], entry['openInterest'], entry['bid'], entry['ask'], entry['lastUpdated'], entry['isAdjusted']]
+    parameters = [entry['id'], entry['symbol'], expiry, entry['contractSize'], entry['strikePrice'], entry['closingPrice'], side, \
+        entry['type'], entry['volume'], entry['openInterest'], entry['bid'], entry['ask'], entry['lastUpdated'], entry['isAdjusted']]
     mycursor.callproc("parseOptions", parameters)
+    mydb.commit()
+
+# TODO: parse_indicators
+def parse_indicators(mydb, mycursor, entry):
+    '''Parses technical indicators data in MySQL database'''
+    query = """INSERT IGNORE INTO Indicators """
+    mycursor.execute(query)
     mydb.commit()
 
 ### Helper Functions
@@ -84,17 +92,23 @@ def main():
     mycursor = mydb.cursor()
 
     # Parsing API data to DB
-    if sys.argv[1] == "max": stocks_range = "max"
-    list_symbols = stock_symbols(env, token)
-    for symbol in list_symbols:
+    # if sys.argv[1] == "max": stocks_range = "max"
+    # list_symbols = stock_symbols(env, token)
+    # for symbol in list_symbols:
 
-        # Stock prices
-        list_price = stocks_prices(env, token, symbol['symbol'], stocks_range)
-        insert_price = []
-        for price in list_price:
-            insert_records = (symbol['symbol'], price['date'], price['high'], price['low'], price['open'], price['close'], price['volume'])
-            insert_price.append(insert_records)
-        parse_stocks(mydb, mycursor, symbol['symbol'], insert_price)
+    #     # Stock prices
+    #     list_price = stocks_prices(env, token, symbol['symbol'], stocks_range)
+    #     insert_price = []
+    #     for price in list_price:
+    #         insert_records = (symbol['symbol'], price['date'], price['high'], price['low'], price['open'], price['close'], price['volume'])
+    #         insert_price.append(insert_records)
+    #     parse_stocks(mydb, mycursor, symbol['symbol'], insert_price)
+
+        # TODO: Technical indicators
+        # indicator_lst = ['rsi', 'roc', 'stoch', 'macd', 'mom', 'vosc']
+        # temp = []
+        # for indicator in indicator_lst:
+        #     temp.append(technical_indicators(env, token, symbol['symbol'], indicator, stocks_range))
 
         # TODO: Options data
         # mycursor.callproc("cleanOptions")
@@ -108,8 +122,10 @@ def main():
         #     except:
         #         pass
 
-    # temp3 = technical_indicators(env, token, "AAPL", "sma", "6m")
-    # print(temp3['indicator'])
+    temp3 = technical_indicators(env, token, "AAPL", "rsi", "1m")
+    print(temp3)
+    print(temp3['indicator'][0][-1])
+    print(temp3['chart'][-1]['date'])
 
     # DOWNSTREAM
     mycursor.close()
